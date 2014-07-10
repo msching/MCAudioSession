@@ -3,7 +3,7 @@ MCAudioSession
 
 a wrapper of AudioSession
 
-For those people who have use AudioSession class to support iOS 5 & 6.
+For those people who have to use AudioSession class to support iOS 5 & 6.
 
 
 一个AudioSession的封装。
