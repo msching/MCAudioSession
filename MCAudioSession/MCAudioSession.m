@@ -73,45 +73,54 @@ static void MCAudioSessionRouteChangeListener(void *inClientData, AudioSessionPr
     AudioSessionRemovePropertyListenerWithUserData(kAudioSessionProperty_AudioRouteChange, MCAudioSessionRouteChangeListener, (__bridge void *)self);
 }
 
+- (NSError *)_errorForOSStatus:(OSStatus)status
+{
+    if (status != noErr)
+    {
+        return [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+    }
+    return nil;
+}
+
 - (BOOL)setActive:(BOOL)active error:(NSError *__autoreleasing *)outError
 {
     OSStatus status = AudioSessionSetActive(active);
-    *outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+    *outError = [self _errorForOSStatus:status];
     return status == noErr;
 }
 
 - (BOOL)setActive:(BOOL)active options:(UInt32)options error:(NSError *__autoreleasing *)outError
 {
     OSStatus status = AudioSessionSetActiveWithFlags(active,options);
-    *outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+    *outError = [self _errorForOSStatus:status];
     return status == noErr;
 }
 
 - (BOOL)setCategory:(UInt32)category error:(NSError *__autoreleasing *)outError
 {
     OSStatus status = AudioSessionSetProperty(kAudioSessionProperty_AudioCategory,sizeof(category),&category);
-    *outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+    *outError = [self _errorForOSStatus:status];
     return status == noErr;
 }
 
 - (BOOL)setProperty:(AudioSessionPropertyID)propertyID dataSize:(UInt32)dataSize data:(const void *)data error:(NSError *__autoreleasing *)outError
 {
     OSStatus status = AudioSessionSetProperty(propertyID,dataSize,data);
-    *outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+    *outError = [self _errorForOSStatus:status];
     return status == noErr;
 }
 
 - (BOOL)addPropertyListener:(AudioSessionPropertyID)propertyID listenerMethod:(AudioSessionPropertyListener)listenerMethod context:(void *)context error:(NSError *__autoreleasing *)outError
 {
     OSStatus status = AudioSessionAddPropertyListener(propertyID,listenerMethod,context);
-    *outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+    *outError = [self _errorForOSStatus:status];
     return status == noErr;
 }
 
 - (BOOL)removePropertyListener:(AudioSessionPropertyID)propertyID listenerMethod:(AudioSessionPropertyListener)listenerMethod context:(void *)context error:(NSError *__autoreleasing *)outError
 {
     OSStatus status = AudioSessionRemovePropertyListenerWithUserData(propertyID,listenerMethod,context);
-    *outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+    *outError = [self _errorForOSStatus:status];
     return status == noErr;
 }
 
