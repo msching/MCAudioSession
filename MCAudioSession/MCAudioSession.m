@@ -62,8 +62,7 @@ static void MCAudioSessionRouteChangeListener(void *inClientData, AudioSessionPr
     self = [super init];
     if (self)
     {
-        AudioSessionInitialize(NULL, NULL, MCAudioSessionInterruptionListener, (__bridge void *)self);
-        AudioSessionAddPropertyListener(kAudioSessionProperty_AudioRouteChange, MCAudioSessionRouteChangeListener, (__bridge void *)self);
+        [self _initializeAudioSession];
     }
     return self;
 }
@@ -73,6 +72,7 @@ static void MCAudioSessionRouteChangeListener(void *inClientData, AudioSessionPr
     AudioSessionRemovePropertyListenerWithUserData(kAudioSessionProperty_AudioRouteChange, MCAudioSessionRouteChangeListener, (__bridge void *)self);
 }
 
+#pragma mark - private
 - (NSError *)_errorForOSStatus:(OSStatus)status
 {
     if (status != noErr)
@@ -82,9 +82,40 @@ static void MCAudioSessionRouteChangeListener(void *inClientData, AudioSessionPr
     return nil;
 }
 
+- (void)_initializeAudioSession
+{
+    AudioSessionInitialize(NULL, NULL, MCAudioSessionInterruptionListener, (__bridge void *)self);
+    AudioSessionAddPropertyListener(kAudioSessionProperty_AudioRouteChange, MCAudioSessionRouteChangeListener, (__bridge void *)self);
+}
+
+- (OSStatus)_doActiveAudioSession
+{
+    UInt32 sessionCategory = kAudioSessionCategory_MediaPlayback;
+    AudioSessionSetProperty (kAudioSessionProperty_AudioCategory,sizeof (sessionCategory),&sessionCategory);
+    return AudioSessionSetActive(true);
+}
+
+- (OSStatus)_activeAudioSession
+{
+    OSStatus status = [self _doActiveAudioSession];
+    if (status == kAudioSessionNotInitialized)
+    {
+        [self _initializeAudioSession];
+        status = [self _doActiveAudioSession];
+    }
+    return status;
+}
+
+#pragma mark - public
 - (BOOL)setActive:(BOOL)active error:(NSError *__autoreleasing *)outError
 {
     OSStatus status = AudioSessionSetActive(active);
+    if (status == kAudioSessionNotInitialized)
+    {
+        [self _initializeAudioSession];
+        status = AudioSessionSetActive(active);
+    }
+    
     *outError = [self _errorForOSStatus:status];
     return status == noErr;
 }
@@ -92,6 +123,11 @@ static void MCAudioSessionRouteChangeListener(void *inClientData, AudioSessionPr
 - (BOOL)setActive:(BOOL)active options:(UInt32)options error:(NSError *__autoreleasing *)outError
 {
     OSStatus status = AudioSessionSetActiveWithFlags(active,options);
+    if (status == kAudioSessionNotInitialized)
+    {
+        [self _initializeAudioSession];
+        status = AudioSessionSetActiveWithFlags(active,options);
+    }
     *outError = [self _errorForOSStatus:status];
     return status == noErr;
 }
