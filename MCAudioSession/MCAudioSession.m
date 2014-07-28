@@ -98,7 +98,10 @@ static void MCAudioSessionRouteChangeListener(void *inClientData, AudioSessionPr
         status = AudioSessionSetActive(active);
     }
     
-    *outError = [self _errorForOSStatus:status];
+    if (outError != NULL)
+    {
+        *outError = [self _errorForOSStatus:status];
+    }
     return status == noErr;
 }
 
@@ -110,7 +113,10 @@ static void MCAudioSessionRouteChangeListener(void *inClientData, AudioSessionPr
         [self _initializeAudioSession];
         status = AudioSessionSetActiveWithFlags(active,options);
     }
-    *outError = [self _errorForOSStatus:status];
+    if (outError != NULL)
+    {
+        *outError = [self _errorForOSStatus:status];
+    }
     return status == noErr;
 }
 
@@ -122,7 +128,10 @@ static void MCAudioSessionRouteChangeListener(void *inClientData, AudioSessionPr
         [self _initializeAudioSession];
         status = AudioSessionSetProperty(kAudioSessionProperty_AudioCategory,sizeof(category),&category);
     }
-    *outError = [self _errorForOSStatus:status];
+    if (outError != NULL)
+    {
+        *outError = [self _errorForOSStatus:status];
+    }
     return status == noErr;
 }
 
@@ -134,7 +143,10 @@ static void MCAudioSessionRouteChangeListener(void *inClientData, AudioSessionPr
         [self _initializeAudioSession];
         status = AudioSessionSetProperty(propertyID,dataSize,data);
     }
-    *outError = [self _errorForOSStatus:status];
+    if (outError != NULL)
+    {
+        *outError = [self _errorForOSStatus:status];
+    }
     return status == noErr;
 }
 
@@ -146,7 +158,10 @@ static void MCAudioSessionRouteChangeListener(void *inClientData, AudioSessionPr
         [self _initializeAudioSession];
         status = AudioSessionAddPropertyListener(propertyID,listenerMethod,context);
     }
-    *outError = [self _errorForOSStatus:status];
+    if (outError != NULL)
+    {
+        *outError = [self _errorForOSStatus:status];
+    }
     return status == noErr;
 }
 
@@ -158,7 +173,10 @@ static void MCAudioSessionRouteChangeListener(void *inClientData, AudioSessionPr
         [self _initializeAudioSession];
         status = AudioSessionRemovePropertyListenerWithUserData(propertyID,listenerMethod,context);
     }
-    *outError = [self _errorForOSStatus:status];
+    if (outError != NULL)
+    {
+        *outError = [self _errorForOSStatus:status];
+    }
     return status == noErr;
 }
 
