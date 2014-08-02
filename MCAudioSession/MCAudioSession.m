@@ -73,13 +73,12 @@ static void MCAudioSessionRouteChangeListener(void *inClientData, AudioSessionPr
 }
 
 #pragma mark - private
-- (NSError *)_errorForOSStatus:(OSStatus)status
+- (void)_errorForOSStatus:(OSStatus)status error:(NSError *__autoreleasing *)outError
 {
-    if (status != noErr)
+    if (status != noErr && outError != NULL)
     {
-        return [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+        *outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
     }
-    return nil;
 }
 
 - (void)_initializeAudioSession
@@ -97,11 +96,7 @@ static void MCAudioSessionRouteChangeListener(void *inClientData, AudioSessionPr
         [self _initializeAudioSession];
         status = AudioSessionSetActive(active);
     }
-    
-    if (outError != NULL)
-    {
-        *outError = [self _errorForOSStatus:status];
-    }
+    [self _errorForOSStatus:status error:outError];
     return status == noErr;
 }
 
@@ -113,10 +108,7 @@ static void MCAudioSessionRouteChangeListener(void *inClientData, AudioSessionPr
         [self _initializeAudioSession];
         status = AudioSessionSetActiveWithFlags(active,options);
     }
-    if (outError != NULL)
-    {
-        *outError = [self _errorForOSStatus:status];
-    }
+    [self _errorForOSStatus:status error:outError];
     return status == noErr;
 }
 
@@ -128,10 +120,7 @@ static void MCAudioSessionRouteChangeListener(void *inClientData, AudioSessionPr
         [self _initializeAudioSession];
         status = AudioSessionSetProperty(kAudioSessionProperty_AudioCategory,sizeof(category),&category);
     }
-    if (outError != NULL)
-    {
-        *outError = [self _errorForOSStatus:status];
-    }
+    [self _errorForOSStatus:status error:outError];
     return status == noErr;
 }
 
@@ -143,10 +132,7 @@ static void MCAudioSessionRouteChangeListener(void *inClientData, AudioSessionPr
         [self _initializeAudioSession];
         status = AudioSessionSetProperty(propertyID,dataSize,data);
     }
-    if (outError != NULL)
-    {
-        *outError = [self _errorForOSStatus:status];
-    }
+    [self _errorForOSStatus:status error:outError];
     return status == noErr;
 }
 
@@ -158,10 +144,7 @@ static void MCAudioSessionRouteChangeListener(void *inClientData, AudioSessionPr
         [self _initializeAudioSession];
         status = AudioSessionAddPropertyListener(propertyID,listenerMethod,context);
     }
-    if (outError != NULL)
-    {
-        *outError = [self _errorForOSStatus:status];
-    }
+    [self _errorForOSStatus:status error:outError];
     return status == noErr;
 }
 
@@ -173,10 +156,7 @@ static void MCAudioSessionRouteChangeListener(void *inClientData, AudioSessionPr
         [self _initializeAudioSession];
         status = AudioSessionRemovePropertyListenerWithUserData(propertyID,listenerMethod,context);
     }
-    if (outError != NULL)
-    {
-        *outError = [self _errorForOSStatus:status];
-    }
+    [self _errorForOSStatus:status error:outError];
     return status == noErr;
 }
 
